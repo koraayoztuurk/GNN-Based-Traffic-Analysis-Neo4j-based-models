@@ -538,8 +538,101 @@ def main():
         trainer.save_checkpoint(epoch=0, is_best=False)
         print("💾 Checkpoint saved.")
     
+    # 8. Test evaluation (eğer test set varsa)
+    if test_size > 0:
+        print(f"\n{'='*70}")
+        print(f"🧪 Test Set Evaluation")
+        print(f"{'='*70}\n")
+        
+        test_loader = DataLoader(
+            test_dataset,
+            batch_size=args.batch_size,
+            shuffle=False,
+            num_workers=0
+        )
+        
+        # En iyi modeli yükle
+        best_model_path = Path(args.checkpoint_dir) / "best_model.pt"
+        if best_model_path.exists():
+            checkpoint = torch.load(best_model_path, map_location=args.device)
+            model.load_state_dict(checkpoint['model_state_dict'])
+            print(f"📦 Best model loaded (epoch {checkpoint.get('epoch', '?')})")
+        
+        # Test evaluation
+        model.eval()
+        test_loss = 0
+        test_mae = 0
+        test_rmse = 0
+        num_batches = 0
+        
+        all_preds = []
+        all_targets = []
+        
+        with torch.no_grad():
+            for batch in test_loader:
+                x = batch['x'].to(args.device)
+                y = batch['y'].to(args.device)
+                
+                # Graph structures (static)
+                edge_index = batch['edge_index'][0].to(args.device)
+                cheb_basis = [b[0].to(args.device) for b in batch['cheb_basis']]
+                
+                pred = model(x, cheb_basis)
+                
+                loss = torch.nn.functional.mse_loss(pred, y)
+                mae = torch.abs(pred - y).mean()
+                rmse = torch.sqrt(((pred - y) ** 2).mean())
+                
+                test_loss += loss.item()
+                test_mae += mae.item()
+                test_rmse += rmse.item()
+                num_batches += 1
+                
+                all_preds.append(pred.cpu())
+                all_targets.append(y.cpu())
+        
+        # Compute final metrics
+        test_loss /= num_batches
+        test_mae /= num_batches
+        test_rmse /= num_batches
+        
+        # R² score
+        all_preds = torch.cat(all_preds, dim=0)
+        all_targets = torch.cat(all_targets, dim=0)
+        ss_res = ((all_targets - all_preds) ** 2).sum()
+        ss_tot = ((all_targets - all_targets.mean()) ** 2).sum()
+        r2 = 1 - (ss_res / ss_tot)
+        
+        # MAPE
+        mape = (torch.abs((all_targets - all_preds) / (all_targets + 1e-8)).mean() * 100).item()
+        
+        print(f"\n📊 Test Set Results:")
+        print(f"  - MSE Loss: {test_loss:.6f}")
+        print(f"  - MAE:      {test_mae:.6f}")
+        print(f"  - RMSE:     {test_rmse:.6f}")
+        print(f"  - MAPE:     {mape:.2f}%")
+        print(f"  - R²:       {r2.item():.6f}")
+        
+        # Save test metrics
+        test_metrics = {
+            'test_loss': test_loss,
+            'test_mae': test_mae,
+            'test_rmse': test_rmse,
+            'test_mape': mape,
+            'test_r2': r2.item()
+        }
+        
+        metrics_file = Path(args.checkpoint_dir) / 'test_metrics.json'
+        with open(metrics_file, 'w') as f:
+            json.dump(test_metrics, f, indent=2)
+        
+        print(f"\n💾 Test metrics saved: {metrics_file}")
+        print(f"\n{'='*70}\n")
+    
     print(f"\n✅ Training script tamamlandı!")
-    print(f"📁 Model checkpoints: {args.checkpoint_dir}\n")
+    print(f"📁 Model checkpoints: {args.checkpoint_dir}")
+    print(f"\n💡 Detaylı evaluation için:")
+    print(f"   python src/gnn/evaluators/evaluate_sta_gcn.py --checkpoint {args.checkpoint_dir}/best_model.pt\n")
 
 
 if __name__ == "__main__":
