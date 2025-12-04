@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Live Traffic Map</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        body { margin: 0; padding: 0; font-family: Arial, sans-serif; }
+        #map { position: absolute; top: 0; bottom: 0; width: 100%; }
+        .info-panel {
+            position: fixed; top: 10px; right: 10px;
+            background: white; padding: 15px; border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3); z-index: 1000;
+            max-width: 300px;
+        }
+        .legend {
+            position: fixed; bottom: 30px; right: 10px;
+            background: white; padding: 15px; border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3); z-index: 1000; font-size: 12px;
+        }
+        .legend-item { margin: 5px 0; }
+        .legend-color {
+            display: inline-block; width: 30px; height: 3px;
+            margin-right: 5px; vertical-align: middle;
+        }
+        button {
+            background: #4CAF50; color: white; border: none;
+            padding: 10px 20px; border-radius: 5px; cursor: pointer;
+            margin: 5px 0;
+        }
+        button:hover { background: #45a049; }
+        select {
+            width: 100%; padding: 8px; margin: 5px 0;
+            border: 1px solid #ddd; border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    
+    <div class="info-panel">
+        <h3 style="margin: 0 0 10px 0;">Live Traffic</h3>
+        <div style="margin-bottom: 10px;">
+            <label><b>Select Time:</b></label>
+            <select id="timestampSelect" onchange="onTimestampChange()">
+                <option value="">Loading...</option>
+            </select>
+        </div>
+        <div id="stats">-</div>
+        <button onclick="refreshData()">Refresh</button>
+        <button onclick="loadTimestamps()">Reload Times</button>
+    </div>
+    
+    <div class="legend">
+        <h4 style="margin: 0 0 10px 0;">Traffic Status</h4>
+        <div class="legend-item">
+            <span class="legend-color" style="background: #2e7d32;"></span> Good (&lt; 2.5)
+        </div>
+        <div class="legend-item">
+            <span class="legend-color" style="background: #fbc02d;"></span> Normal (2.5-5.0)
+        </div>
+        <div class="legend-item">
+            <span class="legend-color" style="background: #f57c00;"></span> Congested (5.0-7.5)
+        </div>
+        <div class="legend-item">
+            <span class="legend-color" style="background: #b71c1c;"></span> Very Congested (7.5-9.5)
+        </div>
+        <div class="legend-item">
+            <span class="legend-color" style="background: #000000;"></span> Stopped (9.5+)
+        </div>
+        <div class="legend-item">
+            <span class="legend-color" style="background: #9e9e9e;"></span> No Data
+        </div>
+    </div>
+
+    <script>
+        // Create map - Eskisehir center
+        var map = L.map('map').setView([39.7767, 30.5206], 12);
+        
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap'
+        }).addTo(map);
+        
+        var trafficLayer = null;
+        var firstLoad = true;
+        var currentTimestamp = null;
+        
+        function loadTimestamps() {
+            console.log('Loading timestamps...');
+            
+            fetch('/api/timestamps')
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Timestamps received:', data.timestamps);
+                    
+                    var select = document.getElementById('timestampSelect');
+                    select.innerHTML = '';
+                    
+                    if (data.timestamps && data.timestamps.length > 0) {
+                        data.timestamps.forEach(function(ts, index) {
+                            var option = document.createElement('option');
+                            option.value = ts;
+                            option.text = ts + (index === 0 ? ' (Latest)' : '');
+                            select.appendChild(option);
+                        });
+                        
+                        // Load latest data
+                        currentTimestamp = data.timestamps[0];
+                        loadTrafficData(currentTimestamp);
+                    } else {
+                        select.innerHTML = '<option value="">No data available</option>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading timestamps:', error);
+                    alert('Error loading timestamps: ' + error);
+                });
+        }
+        
+        function onTimestampChange() {
+            var select = document.getElementById('timestampSelect');
+            currentTimestamp = select.value;
+            console.log('Timestamp changed to:', currentTimestamp);
+            if (currentTimestamp) {
+                loadTrafficData(currentTimestamp);
+            }
+        }
+        
+        function loadTrafficData(timestamp) {
+            console.log('Loading traffic data for timestamp:', timestamp);
+            
+            var url = '/api/traffic';
+            if (timestamp) {
+                url += '?timestamp=' + encodeURIComponent(timestamp);
+            }
+            
+            console.log('Fetching from URL:', url);
+            
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Data received:', data);
+                    console.log('Features:', data.features ? data.features.length : 0);
+                    
+                    // Remove old layer
+                    if (trafficLayer) {
+                        map.removeLayer(trafficLayer);
+                    }
+                    
+                    // Add new layer
+                    if (data.features && data.features.length > 0) {
+                        trafficLayer = L.geoJSON({
+                            type: "FeatureCollection",
+                            features: data.features
+                        }, {
+                            style: function(feature) {
+                                return {
+                                    color: feature.properties.color,
+                                    weight: 7,
+                                    opacity: 0.9
+                                };
+                            },
+                            onEachFeature: function(feature, layer) {
+                                var props = feature.properties;
+                                var popupContent = '<b>Segment:</b> ' + props.segmentId + '<br>' +
+                                    '<b>Speed:</b> ' + (props.speed ? props.speed.toFixed(1) : 'N/A') + ' km/h<br>' +
+                                    '<b>Free Flow:</b> ' + (props.freeFlow ? props.freeFlow.toFixed(1) : 'N/A') + ' km/h<br>' +
+                                    '<b>Jam Factor:</b> ' + (props.jamFactor ? props.jamFactor.toFixed(1) : 'N/A') + '<br>' +
+                                    '<b>Confidence:</b> ' + (props.confidence ? props.confidence.toFixed(2) : 'N/A');
+                                layer.bindPopup(popupContent);
+                            }
+                        }).addTo(map);
+                        
+                        // Zoom on first load
+                        if (firstLoad) {
+                            try {
+                                map.fitBounds(trafficLayer.getBounds(), {padding: [50, 50]});
+                                firstLoad = false;
+                            } catch(e) {
+                                console.log("Bounds error:", e);
+                            }
+                        }
+                        
+                        document.getElementById('stats').innerHTML = 
+                            '<b>Total Segments:</b> ' + data.features.length + '<br>' +
+                            '<b>Timestamp:</b> ' + (data.timestamp || 'Unknown');
+                    } else {
+                        alert('No data found!');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Data loading error: ' + error);
+                });
+        }
+        
+        function refreshData() {
+            if (currentTimestamp) {
+                loadTrafficData(currentTimestamp);
+            } else {
+                loadTimestamps();
+            }
+        }
+        
+        // Load timestamps on page load
+        loadTimestamps();
+    </script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+neo4j>=5.0
+shapely>=2.0
+pyproj>=3.0
+scikit-learn>=1.2
+python-dateutil>=2.8
+pyarrow>=11.0
+pandas>=2.0
+python-dotenv>=1.0
+numpy>=1.24
+python-arango>=7.1
+psutil>=5.9  # Benchmark için
+pyTigerGraph>=1.0  # TigerGraph benchmark için

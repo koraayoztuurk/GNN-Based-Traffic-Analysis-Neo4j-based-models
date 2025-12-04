@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>TigerGraph Live Traffic Map</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        body { margin: 0; padding: 0; font-family: Arial, sans-serif; }
+        #map { position: absolute; top: 0; bottom: 0; width: 100%; }
+        .info-panel {
+            position: fixed; top: 10px; right: 10px;
+            background: white; padding: 15px; border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3); z-index: 1000;
+            max-width: 320px;
+        }
+        .db-badge {
+            background: #ff6f00; color: white;
+            padding: 5px 10px; border-radius: 3px;
+            font-size: 11px; font-weight: bold;
+            display: inline-block; margin-bottom: 10px;
+        }
+        .legend {
+            position: fixed; bottom: 30px; right: 10px;
+            background: white; padding: 15px; border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3); z-index: 1000; font-size: 12px;
+        }
+        .legend-item { margin: 5px 0; }
+        .legend-color {
+            display: inline-block; width: 30px; height: 3px;
+            margin-right: 5px; vertical-align: middle;
+        }
+        button {
+            background: #ff6f00; color: white; border: none;
+            padding: 10px 20px; border-radius: 5px; cursor: pointer;
+            margin: 5px 0; width: 100%;
+        }
+        button:hover { background: #e65100; }
+        select {
+            width: 100%; padding: 8px; margin: 5px 0;
+            border: 1px solid #ddd; border-radius: 3px;
+        }
+        .stats-box {
+            background: #f5f5f5; padding: 10px;
+            border-radius: 3px; margin: 10px 0;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    
+    <div class="info-panel">
+        <div class="db-badge">🐅 TIGERGRAPH</div>
+        <h3 style="margin: 0 0 10px 0;">Live Traffic</h3>
+        <div style="margin-bottom: 10px;">
+            <label><b>Select Time:</b></label>
+            <select id="timestampSelect" onchange="onTimestampChange()">
+                <option value="">Loading...</option>
+            </select>
+        </div>
+        <div class="stats-box" id="stats">-</div>
+        <button onclick="refreshData()">🔄 Refresh Data</button>
+        <button onclick="loadTimestamps()">⏱️ Reload Times</button>
+    </div>
+    
+    <div class="legend">
+        <h4 style="margin: 0 0 10px 0;">Traffic Status (JamFactor)</h4>
+        <div class="legend-item">
+            <span class="legend-color" style="background: #2e7d32;"></span> Good (&lt; 2.5)
+        </div>
+        <div class="legend-item">
+            <span class="legend-color" style="background: #fbc02d;"></span> Normal (2.5-5.0)
+        </div>
+        <div class="legend-item">
+            <span class="legend-color" style="background: #f57c00;"></span> Congested (5.0-7.5)
+        </div>
+        <div class="legend-item">
+            <span class="legend-color" style="background: #b71c1c;"></span> Very Congested (7.5-9.5)
+        </div>
+        <div class="legend-item">
+            <span class="legend-color" style="background: #000000;"></span> Stopped (9.5+)
+        </div>
+        <div class="legend-item">
+            <span class="legend-color" style="background: #9e9e9e;"></span> No Data
+        </div>
+    </div>
+
+    <script>
+        // Create map - Eskişehir center
+        var map = L.map('map').setView([39.7767, 30.5206], 12);
+        
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap | TigerGraph'
+        }).addTo(map);
+        
+        var trafficLayer = null;
+        var firstLoad = true;
+        var currentTimestamp = null;
+        
+        function loadTimestamps() {
+            console.log('Loading timestamps from TigerGraph...');
+            
+            fetch('/api/timestamps')
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Timestamps received:', data.timestamps);
+                    
+                    var select = document.getElementById('timestampSelect');
+                    select.innerHTML = '';
+                    
+                    if (data.timestamps && data.timestamps.length > 0) {
+                        data.timestamps.forEach(function(ts, index) {
+                            var option = document.createElement('option');
+                            option.value = ts;
+                            option.text = ts + (index === 0 ? ' (Latest)' : '');
+                            select.appendChild(option);
+                        });
+                        
+                        // Load latest data
+                        currentTimestamp = data.timestamps[0];
+                        loadTrafficData(currentTimestamp);
+                    } else {
+                        select.innerHTML = '<option value="">No data available</option>';
+                        document.getElementById('stats').innerHTML = 
+                            '<span style="color: orange;">⚠️ No data in TigerGraph</span>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading timestamps:', error);
+                    document.getElementById('stats').innerHTML = 
+                        '<span style="color: red;">❌ Connection error</span>';
+                });
+        }
+        
+        function onTimestampChange() {
+            var select = document.getElementById('timestampSelect');
+            currentTimestamp = select.value;
+            console.log('Timestamp changed to:', currentTimestamp);
+            if (currentTimestamp) {
+                loadTrafficData(currentTimestamp);
+            }
+        }
+        
+        function loadTrafficData(timestamp) {
+            console.log('Loading traffic data from TigerGraph for:', timestamp);
+            
+            var url = '/api/traffic';
+            if (timestamp) {
+                url += '?timestamp=' + encodeURIComponent(timestamp);
+            }
+            
+            console.log('Fetching from URL:', url);
+            
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Data received:', data);
+                    console.log('Features:', data.features ? data.features.length : 0);
+                    
+                    // Remove old layer
+                    if (trafficLayer) {
+                        map.removeLayer(trafficLayer);
+                    }
+                    
+                    // Add new layer
+                    if (data.features && data.features.length > 0) {
+                        trafficLayer = L.geoJSON({
+                            type: "FeatureCollection",
+                            features: data.features
+                        }, {
+                            style: function(feature) {
+                                return {
+                                    color: feature.properties.color,
+                                    weight: 7,
+                                    opacity: 0.9
+                                };
+                            },
+                            onEachFeature: function(feature, layer) {
+                                var props = feature.properties;
+                                var popupContent = 
+                                    '<div style="min-width: 200px;">' +
+                                    '<b style="color: #ff6f00;">🐅 TigerGraph</b><br><hr style="margin: 5px 0;">' +
+                                    '<b>Segment:</b> ' + props.segmentId + '<br>' +
+                                    '<b>Speed:</b> ' + (props.speed ? props.speed.toFixed(1) : 'N/A') + ' km/h<br>' +
+                                    '<b>Free Flow:</b> ' + (props.freeFlow ? props.freeFlow.toFixed(1) : 'N/A') + ' km/h<br>' +
+                                    '<b>Jam Factor:</b> ' + (props.jamFactor ? props.jamFactor.toFixed(1) : 'N/A') + '<br>' +
+                                    '<b>Confidence:</b> ' + (props.confidence ? props.confidence.toFixed(2) : 'N/A') +
+                                    '</div>';
+                                layer.bindPopup(popupContent);
+                            }
+                        }).addTo(map);
+                        
+                        // Zoom on first load
+                        if (firstLoad) {
+                            try {
+                                map.fitBounds(trafficLayer.getBounds(), {padding: [50, 50]});
+                                firstLoad = false;
+                            } catch(e) {
+                                console.log("Bounds error:", e);
+                            }
+                        }
+                        
+                        // Calculate statistics
+                        var greenCount = 0, yellowCount = 0, orangeCount = 0, redCount = 0, blackCount = 0;
+                        data.features.forEach(function(f) {
+                            var color = f.properties.color;
+                            if (color === '#2e7d32') greenCount++;
+                            else if (color === '#fbc02d') yellowCount++;
+                            else if (color === '#f57c00') orangeCount++;
+                            else if (color === '#b71c1c') redCount++;
+                            else if (color === '#000000') blackCount++;
+                        });
+                        
+                        document.getElementById('stats').innerHTML = 
+                            '<b>Total:</b> ' + data.features.length + ' segments<br>' +
+                            '<b>Timestamp:</b> ' + (data.timestamp || 'Unknown') + '<br>' +
+                            '<hr style="margin: 5px 0;">' +
+                            '🟢 Good: ' + greenCount + '<br>' +
+                            '🟡 Normal: ' + yellowCount + '<br>' +
+                            '🟠 Congested: ' + orangeCount + '<br>' +
+                            '🔴 Heavy: ' + redCount + '<br>' +
+                            '⚫ Stopped: ' + blackCount;
+                    } else {
+                        document.getElementById('stats').innerHTML = 
+                            '<span style="color: orange;">⚠️ No data for selected time</span>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById('stats').innerHTML = 
+                        '<span style="color: red;">❌ Loading error</span>';
+                });
+        }
+        
+        function refreshData() {
+            if (currentTimestamp) {
+                loadTrafficData(currentTimestamp);
+            } else {
+                loadTimestamps();
+            }
+        }
+        
+        // Load timestamps on page load
+        loadTimestamps();
+        
+        // Auto-refresh every 60 seconds
+        setInterval(function() {
+            if (currentTimestamp) {
+                console.log('Auto-refreshing data...');
+                loadTrafficData(currentTimestamp);
+            }
+        }, 60000);
+    </script>
+</body>
+</html>

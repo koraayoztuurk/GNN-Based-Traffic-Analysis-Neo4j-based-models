@@ -1,0 +1,367 @@
+2025-10-21 15:07:31 | INFO     | 📝 Pipeline interval: 1 dakika (.env: PIPELINE_INTERVAL_MIN)
+2025-10-21 15:07:31 | ERROR    | ❌ Eksik script(ler): ['01_fetch_here_flow.py', '02_render_flow_map.py', '05_build_timeseries.py', '07_silent_load_to_neo4j.py']
+2025-10-21 15:07:31 | ERROR    |    Bu script'i proje kök dizininde çalıştırın!
+2025-10-21 15:09:42 | INFO     | 📝 Pipeline interval: 1 dakika (.env: PIPELINE_INTERVAL_MIN)
+2025-10-21 15:09:42 | INFO     | 🔄 🔄 🔄 🔄 🔄 🔄 🔄 🔄 🔄 🔄 🔄 🔄 🔄 🔄 🔄 🔄 🔄 🔄 🔄 🔄 
+2025-10-21 15:09:42 | INFO     | 🔄 LOOP MODU AKTIF: Her 1 dakikada bir çalışacak
+2025-10-21 15:09:42 | INFO     | 🔄 Durdurmak için: Ctrl + C
+2025-10-21 15:09:42 | INFO     | 🔄 🔄 🔄 🔄 🔄 🔄 🔄 🔄 🔄 🔄 🔄 🔄 🔄 🔄 🔄 🔄 🔄 🔄 🔄 🔄 
+2025-10-21 15:09:42 | INFO     | 
+######################################################################
+2025-10-21 15:09:42 | INFO     | # İTERASYON 1
+2025-10-21 15:09:42 | INFO     | ######################################################################
+
+2025-10-21 15:09:42 | INFO     | 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 
+2025-10-21 15:09:42 | INFO     | 🚀 OTOMATIK PIPELINE BAŞLIYOR
+2025-10-21 15:09:42 | INFO     | 🚀 Başlangıç: 2025-10-21 15:09:42
+2025-10-21 15:09:42 | INFO     | 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 
+2025-10-21 15:09:42 | INFO     | ======================================================================
+2025-10-21 15:09:42 | INFO     | ADIM 1: HERE Traffic Flow veri çekme
+2025-10-21 15:09:42 | INFO     | ======================================================================
+2025-10-21 15:09:42 | INFO     | ▶️  Çalıştırılıyor: C:\Users\Yusuf\AppData\Local\Programs\Python\Python313\python.exe C:\Users\Yusuf\Desktop\HERE V7 15.10.2025.13.02\HERE V7\HERE V6\src\pipeline\01_fetch_here_flow.py
+2025-10-21 15:09:45 | DEBUG    |    Requesting HERE Traffic Flow v7 �
+2025-10-21 15:09:45 | DEBUG    |    HTTP 200 | https://data.traffic.hereapi.com/v7/flow?in=bbox%3A30.4000%2C39.7000%2C30.7500%2C39.8600&locationReferencing=shape&apiKey=RuTmm52lyY4vV72USiKVM38WF4wBG82TgxlLf22-kuo&units=kmh&transportMode=car&functionalClass=1%2C2%2C3%2C4%2C5&advancedFeatures=deepCoverage%2Clanes
+2025-10-21 15:09:45 | DEBUG    |    results: 1132
+2025-10-21 15:09:45 | DEBUG    |    Saved -> C:\Users\Yusuf\Desktop\HERE V7 15.10.2025.13.02\HERE V7\HERE V6\here_flow_raw.json
+2025-10-21 15:09:45 | INFO     | ✅ 01_fetch_here_flow.py başarılı (exit code: 0)
+2025-10-21 15:09:45 | INFO     | ======================================================================
+2025-10-21 15:09:45 | INFO     | ADIM 2: Harita render ve GeoJSON arşivleme
+2025-10-21 15:09:45 | INFO     | ======================================================================
+2025-10-21 15:09:45 | INFO     | ▶️  Çalıştırılıyor: C:\Users\Yusuf\AppData\Local\Programs\Python\Python313\python.exe C:\Users\Yusuf\Desktop\HERE V7 15.10.2025.13.02\HERE V7\HERE V6\src\pipeline\02_render_flow_map.py
+2025-10-21 15:09:45 | DEBUG    |    Wrote C:\Users\Yusuf\Desktop\HERE V7 15.10.2025.13.02\HERE V7\HERE V6\src\visualization\map.html with 1762 feature(s). COLOR_MODE=jam
+2025-10-21 15:09:45 | DEBUG    |    Archived -> C:\Users\Yusuf\Desktop\HERE V7 15.10.2025.13.02\HERE V7\HERE V6\archive\flow_20251021_1509.geojson
+2025-10-21 15:09:45 | INFO     | ✅ 02_render_flow_map.py başarılı (exit code: 0)
+2025-10-21 15:09:45 | INFO     | ======================================================================
+2025-10-21 15:09:45 | INFO     | ADIM 3: Timeseries (Parquet) oluşturma
+2025-10-21 15:09:45 | INFO     | ======================================================================
+2025-10-21 15:09:45 | INFO     | 📁 1 adet arşiv dosyası bulundu
+2025-10-21 15:09:45 | INFO     | ▶️  Çalıştırılıyor: C:\Users\Yusuf\AppData\Local\Programs\Python\Python313\python.exe C:\Users\Yusuf\Desktop\HERE V7 15.10.2025.13.02\HERE V7\HERE V6\src\pipeline\05_build_timeseries.py
+2025-10-21 15:09:46 | DEBUG    |    Wrote C:\Users\Yusuf\Desktop\HERE V7 15.10.2025.13.02\HERE V7\HERE V6\data\timeseries.parquet
+2025-10-21 15:09:46 | DEBUG    |    Wrote C:\Users\Yusuf\Desktop\HERE V7 15.10.2025.13.02\HERE V7\HERE V6\data\edges_static.geojson (1762 edges)
+2025-10-21 15:09:46 | INFO     | ✅ 05_build_timeseries.py başarılı (exit code: 0)
+2025-10-21 15:09:46 | INFO     | ======================================================================
+2025-10-21 15:09:46 | INFO     | ADIM 3.5: Topoloji Kontrolü (CONNECTS_TO)
+2025-10-21 15:09:46 | INFO     | ======================================================================
+2025-10-21 15:09:46 | INFO     | ▶️  Çalıştırılıyor: C:\Users\Yusuf\AppData\Local\Programs\Python\Python313\python.exe C:\Users\Yusuf\Desktop\HERE V7 15.10.2025.13.02\HERE V7\HERE V6\src\pipeline\mvp\scripts\ensure_topology.py
+2025-10-21 15:09:46 | ERROR    | ❌ mvp/scripts/ensure_topology.py hata verdi (exit code: 2)
+2025-10-21 15:09:46 | ERROR    | STDERR:
+C:\Users\Yusuf\AppData\Local\Programs\Python\Python313\python.exe: can't open file 'C:\\Users\\Yusuf\\Desktop\\HERE V7 15.10.2025.13.02\\HERE V7\\HERE V6\\src\\pipeline\\mvp\\scripts\\ensure_topology.py': [Errno 2] No such file or directory
+
+2025-10-21 15:09:46 | INFO     | ======================================================================
+2025-10-21 15:09:46 | INFO     | ADIM 4: Neo4j'ye veri yükleme
+2025-10-21 15:09:46 | INFO     | ======================================================================
+2025-10-21 15:09:46 | INFO     | ▶️  Çalıştırılıyor: C:\Users\Yusuf\AppData\Local\Programs\Python\Python313\python.exe C:\Users\Yusuf\Desktop\HERE V7 15.10.2025.13.02\HERE V7\HERE V6\src\neo4j\07_silent_load_to_neo4j.py
+2025-10-21 15:09:50 | DEBUG    |    [INFO] Otomatik Neo4j yükleme başlıyor...
+2025-10-21 15:09:50 | DEBUG    |    [OK] Neo4j bağlantısı başarılı
+2025-10-21 15:09:50 | DEBUG    |    
+2025-10-21 15:09:50 | DEBUG    |    [INFO] Schema oluşturuluyor...
+2025-10-21 15:09:50 | DEBUG    |    [OK] Constraints & indexes ensured.
+2025-10-21 15:09:50 | DEBUG    |    
+2025-10-21 15:09:50 | DEBUG    |    [INFO] Statik segmentler yükleniyor...
+2025-10-21 15:09:50 | DEBUG    |    [OK] Segments upserted: 1762
+2025-10-21 15:09:50 | DEBUG    |    
+2025-10-21 15:09:50 | DEBUG    |    [INFO] Komşuluklar oluşturuluyor...
+2025-10-21 15:09:50 | DEBUG    |    [OK] NEXT_TO created: 9175 (threshold 3.0 m)
+2025-10-21 15:09:50 | DEBUG    |    
+2025-10-21 15:09:50 | DEBUG    |    [INFO] Timeseries yükleniyor (batch=10000)...
+2025-10-21 15:09:50 | DEBUG    |    [OK] Ingested parquet: C:\Users\Yusuf\Desktop\HERE V7 15.10.2025.13.02\HERE V7\HERE V6\data\timeseries.parquet rows=1762, uploaded=1762
+2025-10-21 15:09:50 | DEBUG    |    
+2025-10-21 15:09:50 | DEBUG    |    ======================================================================
+2025-10-21 15:09:50 | DEBUG    |    [SUCCESS] TÜM VERİLER BAŞARIYLA NEO4J'YE YÜKLENDİ!
+2025-10-21 15:09:50 | DEBUG    |    ======================================================================
+2025-10-21 15:09:50 | INFO     | ✅ 07_silent_load_to_neo4j.py başarılı (exit code: 0)
+2025-10-21 15:09:50 | INFO     | ======================================================================
+2025-10-21 15:09:50 | INFO     | 📊 PIPELINE SONUÇLARI
+2025-10-21 15:09:50 | INFO     | ======================================================================
+2025-10-21 15:09:50 | INFO     | ⏱️  Toplam süre: 7.6 saniye
+2025-10-21 15:09:50 | INFO     | 
+2025-10-21 15:09:50 | INFO     | Adım sonuçları:
+2025-10-21 15:09:50 | INFO     |   fetch        → ✅ BAŞARILI
+2025-10-21 15:09:50 | INFO     |   render       → ✅ BAŞARILI
+2025-10-21 15:09:50 | INFO     |   timeseries   → ✅ BAŞARILI
+2025-10-21 15:09:50 | INFO     |   topology     → ❌ HATA
+2025-10-21 15:09:50 | INFO     |   neo4j        → ✅ BAŞARILI
+2025-10-21 15:09:50 | INFO     | ======================================================================
+2025-10-21 15:09:50 | WARNING  | ⚠️  Bazı adımlarda hata oluştu (yukarıdaki logları incele)
+2025-10-21 15:09:50 | INFO     | ======================================================================
+2025-10-21 15:09:50 | INFO     | 
+⏸️  1 dakika bekleniyor...
+2025-10-21 15:09:50 | INFO     |    Sonraki çalışma: 15:09:50 + 1 dk
+
+2025-10-21 15:10:45 | INFO     | 
+
+🛑 Pipeline kullanıcı tarafından durduruldu (Ctrl+C)
+2025-10-21 15:10:45 | INFO     | 📊 Toplam 1 iterasyon tamamlandı
+2025-10-21 15:11:00 | INFO     | 📝 Pipeline interval: 1 dakika (.env: PIPELINE_INTERVAL_MIN)
+2025-10-21 15:11:00 | INFO     | 🔄 🔄 🔄 🔄 🔄 🔄 🔄 🔄 🔄 🔄 🔄 🔄 🔄 🔄 🔄 🔄 🔄 🔄 🔄 🔄 
+2025-10-21 15:11:00 | INFO     | 🔄 LOOP MODU AKTIF: Her 1 dakikada bir çalışacak
+2025-10-21 15:11:00 | INFO     | 🔄 Durdurmak için: Ctrl + C
+2025-10-21 15:11:00 | INFO     | 🔄 🔄 🔄 🔄 🔄 🔄 🔄 🔄 🔄 🔄 🔄 🔄 🔄 🔄 🔄 🔄 🔄 🔄 🔄 🔄 
+2025-10-21 15:11:00 | INFO     | 
+######################################################################
+2025-10-21 15:11:00 | INFO     | # İTERASYON 1
+2025-10-21 15:11:00 | INFO     | ######################################################################
+
+2025-10-21 15:11:00 | INFO     | 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 
+2025-10-21 15:11:00 | INFO     | 🚀 OTOMATIK PIPELINE BAŞLIYOR
+2025-10-21 15:11:00 | INFO     | 🚀 Başlangıç: 2025-10-21 15:11:00
+2025-10-21 15:11:00 | INFO     | 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 
+2025-10-21 15:11:00 | INFO     | ======================================================================
+2025-10-21 15:11:00 | INFO     | ADIM 1: HERE Traffic Flow veri çekme
+2025-10-21 15:11:00 | INFO     | ======================================================================
+2025-10-21 15:11:00 | INFO     | ▶️  Çalıştırılıyor: C:\Users\Yusuf\AppData\Local\Programs\Python\Python313\python.exe C:\Users\Yusuf\Desktop\HERE V7 15.10.2025.13.02\HERE V7\HERE V6\src\pipeline\01_fetch_here_flow.py
+2025-10-21 15:11:01 | DEBUG    |    Requesting HERE Traffic Flow v7 �
+2025-10-21 15:11:01 | DEBUG    |    HTTP 200 | https://data.traffic.hereapi.com/v7/flow?in=bbox%3A30.4000%2C39.7000%2C30.7500%2C39.8600&locationReferencing=shape&apiKey=RuTmm52lyY4vV72USiKVM38WF4wBG82TgxlLf22-kuo&units=kmh&transportMode=car&functionalClass=1%2C2%2C3%2C4%2C5&advancedFeatures=deepCoverage%2Clanes
+2025-10-21 15:11:01 | DEBUG    |    results: 1132
+2025-10-21 15:11:01 | DEBUG    |    Saved -> C:\Users\Yusuf\Desktop\HERE V7 15.10.2025.13.02\HERE V7\HERE V6\here_flow_raw.json
+2025-10-21 15:11:01 | INFO     | ✅ 01_fetch_here_flow.py başarılı (exit code: 0)
+2025-10-21 15:11:01 | INFO     | ======================================================================
+2025-10-21 15:11:01 | INFO     | ADIM 2: Harita render ve GeoJSON arşivleme
+2025-10-21 15:11:01 | INFO     | ======================================================================
+2025-10-21 15:11:01 | INFO     | ▶️  Çalıştırılıyor: C:\Users\Yusuf\AppData\Local\Programs\Python\Python313\python.exe C:\Users\Yusuf\Desktop\HERE V7 15.10.2025.13.02\HERE V7\HERE V6\src\pipeline\02_render_flow_map.py
+2025-10-21 15:11:02 | DEBUG    |    Wrote C:\Users\Yusuf\Desktop\HERE V7 15.10.2025.13.02\HERE V7\HERE V6\src\visualization\map.html with 1769 feature(s). COLOR_MODE=jam
+2025-10-21 15:11:02 | DEBUG    |    Archived -> C:\Users\Yusuf\Desktop\HERE V7 15.10.2025.13.02\HERE V7\HERE V6\archive\flow_20251021_1511.geojson
+2025-10-21 15:11:02 | INFO     | ✅ 02_render_flow_map.py başarılı (exit code: 0)
+2025-10-21 15:11:02 | INFO     | ======================================================================
+2025-10-21 15:11:02 | INFO     | ADIM 3: Timeseries (Parquet) oluşturma
+2025-10-21 15:11:02 | INFO     | ======================================================================
+2025-10-21 15:11:02 | INFO     | 📁 2 adet arşiv dosyası bulundu
+2025-10-21 15:11:02 | INFO     | ▶️  Çalıştırılıyor: C:\Users\Yusuf\AppData\Local\Programs\Python\Python313\python.exe C:\Users\Yusuf\Desktop\HERE V7 15.10.2025.13.02\HERE V7\HERE V6\src\pipeline\05_build_timeseries.py
+2025-10-21 15:11:02 | DEBUG    |    Wrote C:\Users\Yusuf\Desktop\HERE V7 15.10.2025.13.02\HERE V7\HERE V6\data\timeseries.parquet
+2025-10-21 15:11:02 | DEBUG    |    Wrote C:\Users\Yusuf\Desktop\HERE V7 15.10.2025.13.02\HERE V7\HERE V6\data\edges_static.geojson (2738 edges)
+2025-10-21 15:11:02 | INFO     | ✅ 05_build_timeseries.py başarılı (exit code: 0)
+2025-10-21 15:11:02 | INFO     | ======================================================================
+2025-10-21 15:11:02 | INFO     | ADIM 3.5: Topoloji Kontrolü (CONNECTS_TO)
+2025-10-21 15:11:02 | INFO     | ======================================================================
+2025-10-21 15:11:02 | INFO     | ▶️  Çalıştırılıyor: C:\Users\Yusuf\AppData\Local\Programs\Python\Python313\python.exe C:\Users\Yusuf\Desktop\HERE V7 15.10.2025.13.02\HERE V7\HERE V6\src\gnn\ensure_topology.py
+2025-10-21 15:11:02 | DEBUG    |    ============================================================
+2025-10-21 15:11:02 | ERROR    | ❌ ensure_topology.py hata verdi (exit code: 1)
+2025-10-21 15:11:02 | ERROR    | STDERR:
+Traceback (most recent call last):
+  File "C:\Users\Yusuf\Desktop\HERE V7 15.10.2025.13.02\HERE V7\HERE V6\src\gnn\ensure_topology.py", line 71, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "C:\Users\Yusuf\Desktop\HERE V7 15.10.2025.13.02\HERE V7\HERE V6\src\gnn\ensure_topology.py", line 20, in main
+    print("\U0001f9e0 Ak�ll� Topoloji Y�netimi")
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Yusuf\AppData\Local\Programs\Python\Python313\Lib\encodings\cp1254.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode character '\U0001f9e0' in position 0: character maps to <undefined>
+
+2025-10-21 15:11:02 | INFO     | ======================================================================
+2025-10-21 15:11:02 | INFO     | ADIM 4: Neo4j'ye veri yükleme
+2025-10-21 15:11:02 | INFO     | ======================================================================
+2025-10-21 15:11:02 | INFO     | ▶️  Çalıştırılıyor: C:\Users\Yusuf\AppData\Local\Programs\Python\Python313\python.exe C:\Users\Yusuf\Desktop\HERE V7 15.10.2025.13.02\HERE V7\HERE V6\src\neo4j\07_silent_load_to_neo4j.py
+2025-10-21 15:11:06 | DEBUG    |    [INFO] Otomatik Neo4j yükleme başlıyor...
+2025-10-21 15:11:06 | DEBUG    |    [OK] Neo4j bağlantısı başarılı
+2025-10-21 15:11:06 | DEBUG    |    
+2025-10-21 15:11:06 | DEBUG    |    [INFO] Schema oluşturuluyor...
+2025-10-21 15:11:06 | DEBUG    |    [OK] Constraints & indexes ensured.
+2025-10-21 15:11:06 | DEBUG    |    
+2025-10-21 15:11:06 | DEBUG    |    [INFO] Statik segmentler yükleniyor...
+2025-10-21 15:11:06 | DEBUG    |    [OK] Segments upserted: 2738
+2025-10-21 15:11:06 | DEBUG    |    
+2025-10-21 15:11:06 | DEBUG    |    [INFO] Komşuluklar oluşturuluyor...
+2025-10-21 15:11:06 | DEBUG    |    [OK] NEXT_TO created: 13515 (threshold 3.0 m)
+2025-10-21 15:11:06 | DEBUG    |    
+2025-10-21 15:11:06 | DEBUG    |    [INFO] Timeseries yükleniyor (batch=10000)...
+2025-10-21 15:11:06 | DEBUG    |    [OK] Ingested parquet: C:\Users\Yusuf\Desktop\HERE V7 15.10.2025.13.02\HERE V7\HERE V6\data\timeseries.parquet rows=3531, uploaded=3531
+2025-10-21 15:11:06 | DEBUG    |    
+2025-10-21 15:11:06 | DEBUG    |    ======================================================================
+2025-10-21 15:11:06 | DEBUG    |    [SUCCESS] TÜM VERİLER BAŞARIYLA NEO4J'YE YÜKLENDİ!
+2025-10-21 15:11:06 | DEBUG    |    ======================================================================
+2025-10-21 15:11:06 | INFO     | ✅ 07_silent_load_to_neo4j.py başarılı (exit code: 0)
+2025-10-21 15:11:06 | INFO     | ======================================================================
+2025-10-21 15:11:06 | INFO     | 📊 PIPELINE SONUÇLARI
+2025-10-21 15:11:06 | INFO     | ======================================================================
+2025-10-21 15:11:06 | INFO     | ⏱️  Toplam süre: 5.7 saniye
+2025-10-21 15:11:06 | INFO     | 
+2025-10-21 15:11:06 | INFO     | Adım sonuçları:
+2025-10-21 15:11:06 | INFO     |   fetch        → ✅ BAŞARILI
+2025-10-21 15:11:06 | INFO     |   render       → ✅ BAŞARILI
+2025-10-21 15:11:06 | INFO     |   timeseries   → ✅ BAŞARILI
+2025-10-21 15:11:06 | INFO     |   topology     → ❌ HATA
+2025-10-21 15:11:06 | INFO     |   neo4j        → ✅ BAŞARILI
+2025-10-21 15:11:06 | INFO     | ======================================================================
+2025-10-21 15:11:06 | WARNING  | ⚠️  Bazı adımlarda hata oluştu (yukarıdaki logları incele)
+2025-10-21 15:11:06 | INFO     | ======================================================================
+2025-10-21 15:11:06 | INFO     | 
+⏸️  1 dakika bekleniyor...
+2025-10-21 15:11:06 | INFO     |    Sonraki çalışma: 15:11:06 + 1 dk
+
+2025-10-21 15:11:41 | INFO     | 
+
+🛑 Pipeline kullanıcı tarafından durduruldu (Ctrl+C)
+2025-10-21 15:11:41 | INFO     | 📊 Toplam 1 iterasyon tamamlandı
+2025-10-21 15:22:36 | INFO     | 📝 Pipeline interval: 1 dakika (.env: PIPELINE_INTERVAL_MIN)
+2025-10-21 15:22:36 | INFO     | 🔄 🔄 🔄 🔄 🔄 🔄 🔄 🔄 🔄 🔄 🔄 🔄 🔄 🔄 🔄 🔄 🔄 🔄 🔄 🔄 
+2025-10-21 15:22:36 | INFO     | 🔄 LOOP MODU AKTIF: Her 1 dakikada bir çalışacak
+2025-10-21 15:22:36 | INFO     | 🔄 Durdurmak için: Ctrl + C
+2025-10-21 15:22:36 | INFO     | 🔄 🔄 🔄 🔄 🔄 🔄 🔄 🔄 🔄 🔄 🔄 🔄 🔄 🔄 🔄 🔄 🔄 🔄 🔄 🔄 
+2025-10-21 15:22:36 | INFO     | 
+######################################################################
+2025-10-21 15:22:36 | INFO     | # İTERASYON 1
+2025-10-21 15:22:36 | INFO     | ######################################################################
+
+2025-10-21 15:22:36 | INFO     | 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 
+2025-10-21 15:22:36 | INFO     | 🚀 OTOMATIK PIPELINE BAŞLIYOR
+2025-10-21 15:22:36 | INFO     | 🚀 Başlangıç: 2025-10-21 15:22:36
+2025-10-21 15:22:36 | INFO     | 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 
+2025-10-21 15:22:36 | INFO     | ======================================================================
+2025-10-21 15:22:36 | INFO     | ADIM 1: HERE Traffic Flow veri çekme
+2025-10-21 15:22:36 | INFO     | ======================================================================
+2025-10-21 15:22:36 | INFO     | ▶️  Çalıştırılıyor: C:\Users\Yusuf\AppData\Local\Programs\Python\Python313\python.exe C:\Users\Yusuf\Desktop\HERE V7 15.10.2025.13.02\HERE V7\HERE V6\src\pipeline\01_fetch_here_flow.py
+2025-10-21 15:22:39 | DEBUG    |    Requesting HERE Traffic Flow v7 �
+2025-10-21 15:22:39 | DEBUG    |    HTTP 200 | https://data.traffic.hereapi.com/v7/flow?in=bbox%3A30.4000%2C39.7000%2C30.7500%2C39.8600&locationReferencing=shape&apiKey=RuTmm52lyY4vV72USiKVM38WF4wBG82TgxlLf22-kuo&units=kmh&transportMode=car&functionalClass=1%2C2%2C3%2C4%2C5&advancedFeatures=deepCoverage%2Clanes
+2025-10-21 15:22:39 | DEBUG    |    results: 1131
+2025-10-21 15:22:39 | DEBUG    |    Saved -> C:\Users\Yusuf\Desktop\HERE V7 15.10.2025.13.02\HERE V7\HERE V6\here_flow_raw.json
+2025-10-21 15:22:39 | INFO     | ✅ 01_fetch_here_flow.py başarılı (exit code: 0)
+2025-10-21 15:22:39 | INFO     | ======================================================================
+2025-10-21 15:22:39 | INFO     | ADIM 2: Harita render ve GeoJSON arşivleme
+2025-10-21 15:22:39 | INFO     | ======================================================================
+2025-10-21 15:22:39 | INFO     | ▶️  Çalıştırılıyor: C:\Users\Yusuf\AppData\Local\Programs\Python\Python313\python.exe C:\Users\Yusuf\Desktop\HERE V7 15.10.2025.13.02\HERE V7\HERE V6\src\pipeline\02_render_flow_map.py
+2025-10-21 15:22:39 | DEBUG    |    Wrote C:\Users\Yusuf\Desktop\HERE V7 15.10.2025.13.02\HERE V7\HERE V6\src\visualization\map.html with 1769 feature(s). COLOR_MODE=jam
+2025-10-21 15:22:39 | DEBUG    |    Archived -> C:\Users\Yusuf\Desktop\HERE V7 15.10.2025.13.02\HERE V7\HERE V6\archive\flow_20251021_1522.geojson
+2025-10-21 15:22:39 | INFO     | ✅ 02_render_flow_map.py başarılı (exit code: 0)
+2025-10-21 15:22:39 | INFO     | ======================================================================
+2025-10-21 15:22:39 | INFO     | ADIM 3: Timeseries (Parquet) oluşturma
+2025-10-21 15:22:39 | INFO     | ======================================================================
+2025-10-21 15:22:39 | INFO     | 📁 3 adet arşiv dosyası bulundu
+2025-10-21 15:22:39 | INFO     | ▶️  Çalıştırılıyor: C:\Users\Yusuf\AppData\Local\Programs\Python\Python313\python.exe C:\Users\Yusuf\Desktop\HERE V7 15.10.2025.13.02\HERE V7\HERE V6\src\pipeline\05_build_timeseries.py
+2025-10-21 15:22:40 | DEBUG    |    Wrote C:\Users\Yusuf\Desktop\HERE V7 15.10.2025.13.02\HERE V7\HERE V6\data\timeseries.parquet
+2025-10-21 15:22:40 | DEBUG    |    Wrote C:\Users\Yusuf\Desktop\HERE V7 15.10.2025.13.02\HERE V7\HERE V6\data\edges_static.geojson (3724 edges)
+2025-10-21 15:22:40 | INFO     | ✅ 05_build_timeseries.py başarılı (exit code: 0)
+2025-10-21 15:22:40 | INFO     | ======================================================================
+2025-10-21 15:22:40 | INFO     | ADIM 3.5: Topoloji Kontrolü (CONNECTS_TO)
+2025-10-21 15:22:40 | INFO     | ======================================================================
+2025-10-21 15:22:40 | INFO     | ▶️  Çalıştırılıyor: C:\Users\Yusuf\AppData\Local\Programs\Python\Python313\python.exe C:\Users\Yusuf\Desktop\HERE V7 15.10.2025.13.02\HERE V7\HERE V6\src\gnn\ensure_topology.py
+2025-10-21 15:22:41 | DEBUG    |    [TOPO] Checking topology...
+2025-10-21 15:22:41 | DEBUG    |    [OK] Topology exists, skipping.
+2025-10-21 15:22:41 | INFO     | ✅ ensure_topology.py başarılı (exit code: 0)
+2025-10-21 15:22:41 | INFO     | ======================================================================
+2025-10-21 15:22:41 | INFO     | ADIM 4: Neo4j'ye veri yükleme
+2025-10-21 15:22:41 | INFO     | ======================================================================
+2025-10-21 15:22:41 | INFO     | ▶️  Çalıştırılıyor: C:\Users\Yusuf\AppData\Local\Programs\Python\Python313\python.exe C:\Users\Yusuf\Desktop\HERE V7 15.10.2025.13.02\HERE V7\HERE V6\src\neo4j\07_silent_load_to_neo4j.py
+2025-10-21 15:22:44 | DEBUG    |    [INFO] Otomatik Neo4j yükleme başlıyor...
+2025-10-21 15:22:44 | DEBUG    |    [OK] Neo4j bağlantısı başarılı
+2025-10-21 15:22:44 | DEBUG    |    
+2025-10-21 15:22:44 | DEBUG    |    [INFO] Schema oluşturuluyor...
+2025-10-21 15:22:44 | DEBUG    |    [OK] Constraints & indexes ensured.
+2025-10-21 15:22:44 | DEBUG    |    
+2025-10-21 15:22:44 | DEBUG    |    [INFO] Statik segmentler yükleniyor...
+2025-10-21 15:22:44 | DEBUG    |    [OK] Segments upserted: 3724
+2025-10-21 15:22:44 | DEBUG    |    
+2025-10-21 15:22:44 | DEBUG    |    [INFO] Komşuluklar oluşturuluyor...
+2025-10-21 15:22:44 | DEBUG    |    [OK] NEXT_TO created: 16632 (threshold 3.0 m)
+2025-10-21 15:22:44 | DEBUG    |    
+2025-10-21 15:22:44 | DEBUG    |    [INFO] Timeseries yükleniyor (batch=10000)...
+2025-10-21 15:22:44 | DEBUG    |    [OK] Ingested parquet: C:\Users\Yusuf\Desktop\HERE V7 15.10.2025.13.02\HERE V7\HERE V6\data\timeseries.parquet rows=5300, uploaded=5300
+2025-10-21 15:22:44 | DEBUG    |    
+2025-10-21 15:22:44 | DEBUG    |    ======================================================================
+2025-10-21 15:22:44 | DEBUG    |    [SUCCESS] TÜM VERİLER BAŞARIYLA NEO4J'YE YÜKLENDİ!
+2025-10-21 15:22:44 | DEBUG    |    ======================================================================
+2025-10-21 15:22:44 | INFO     | ✅ 07_silent_load_to_neo4j.py başarılı (exit code: 0)
+2025-10-21 15:22:44 | INFO     | ======================================================================
+2025-10-21 15:22:44 | INFO     | 📊 PIPELINE SONUÇLARI
+2025-10-21 15:22:44 | INFO     | ======================================================================
+2025-10-21 15:22:44 | INFO     | ⏱️  Toplam süre: 7.5 saniye
+2025-10-21 15:22:44 | INFO     | 
+2025-10-21 15:22:44 | INFO     | Adım sonuçları:
+2025-10-21 15:22:44 | INFO     |   fetch        → ✅ BAŞARILI
+2025-10-21 15:22:44 | INFO     |   render       → ✅ BAŞARILI
+2025-10-21 15:22:44 | INFO     |   timeseries   → ✅ BAŞARILI
+2025-10-21 15:22:44 | INFO     |   topology     → ✅ BAŞARILI
+2025-10-21 15:22:44 | INFO     |   neo4j        → ✅ BAŞARILI
+2025-10-21 15:22:44 | INFO     | ======================================================================
+2025-10-21 15:22:44 | INFO     | 🎉 TÜM ADIMLAR BAŞARIYLA TAMAMLANDI!
+2025-10-21 15:22:44 | INFO     | ======================================================================
+2025-10-21 15:22:44 | INFO     | 
+⏸️  1 dakika bekleniyor...
+2025-10-21 15:22:44 | INFO     |    Sonraki çalışma: 15:22:44 + 1 dk
+
+2025-10-21 15:23:44 | INFO     | 
+######################################################################
+2025-10-21 15:23:44 | INFO     | # İTERASYON 2
+2025-10-21 15:23:44 | INFO     | ######################################################################
+
+2025-10-21 15:23:44 | INFO     | 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 
+2025-10-21 15:23:44 | INFO     | 🚀 OTOMATIK PIPELINE BAŞLIYOR
+2025-10-21 15:23:44 | INFO     | 🚀 Başlangıç: 2025-10-21 15:23:44
+2025-10-21 15:23:44 | INFO     | 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 🚀 
+2025-10-21 15:23:44 | INFO     | ======================================================================
+2025-10-21 15:23:44 | INFO     | ADIM 1: HERE Traffic Flow veri çekme
+2025-10-21 15:23:44 | INFO     | ======================================================================
+2025-10-21 15:23:44 | INFO     | ▶️  Çalıştırılıyor: C:\Users\Yusuf\AppData\Local\Programs\Python\Python313\python.exe C:\Users\Yusuf\Desktop\HERE V7 15.10.2025.13.02\HERE V7\HERE V6\src\pipeline\01_fetch_here_flow.py
+2025-10-21 15:23:45 | DEBUG    |    Requesting HERE Traffic Flow v7 �
+2025-10-21 15:23:45 | DEBUG    |    HTTP 200 | https://data.traffic.hereapi.com/v7/flow?in=bbox%3A30.4000%2C39.7000%2C30.7500%2C39.8600&locationReferencing=shape&apiKey=RuTmm52lyY4vV72USiKVM38WF4wBG82TgxlLf22-kuo&units=kmh&transportMode=car&functionalClass=1%2C2%2C3%2C4%2C5&advancedFeatures=deepCoverage%2Clanes
+2025-10-21 15:23:45 | DEBUG    |    results: 1129
+2025-10-21 15:23:45 | DEBUG    |    Saved -> C:\Users\Yusuf\Desktop\HERE V7 15.10.2025.13.02\HERE V7\HERE V6\here_flow_raw.json
+2025-10-21 15:23:45 | INFO     | ✅ 01_fetch_here_flow.py başarılı (exit code: 0)
+2025-10-21 15:23:45 | INFO     | ======================================================================
+2025-10-21 15:23:45 | INFO     | ADIM 2: Harita render ve GeoJSON arşivleme
+2025-10-21 15:23:45 | INFO     | ======================================================================
+2025-10-21 15:23:45 | INFO     | ▶️  Çalıştırılıyor: C:\Users\Yusuf\AppData\Local\Programs\Python\Python313\python.exe C:\Users\Yusuf\Desktop\HERE V7 15.10.2025.13.02\HERE V7\HERE V6\src\pipeline\02_render_flow_map.py
+2025-10-21 15:23:46 | DEBUG    |    Wrote C:\Users\Yusuf\Desktop\HERE V7 15.10.2025.13.02\HERE V7\HERE V6\src\visualization\map.html with 1758 feature(s). COLOR_MODE=jam
+2025-10-21 15:23:46 | DEBUG    |    Archived -> C:\Users\Yusuf\Desktop\HERE V7 15.10.2025.13.02\HERE V7\HERE V6\archive\flow_20251021_1523.geojson
+2025-10-21 15:23:46 | INFO     | ✅ 02_render_flow_map.py başarılı (exit code: 0)
+2025-10-21 15:23:46 | INFO     | ======================================================================
+2025-10-21 15:23:46 | INFO     | ADIM 3: Timeseries (Parquet) oluşturma
+2025-10-21 15:23:46 | INFO     | ======================================================================
+2025-10-21 15:23:46 | INFO     | 📁 4 adet arşiv dosyası bulundu
+2025-10-21 15:23:46 | INFO     | ▶️  Çalıştırılıyor: C:\Users\Yusuf\AppData\Local\Programs\Python\Python313\python.exe C:\Users\Yusuf\Desktop\HERE V7 15.10.2025.13.02\HERE V7\HERE V6\src\pipeline\05_build_timeseries.py
+2025-10-21 15:23:46 | DEBUG    |    Wrote C:\Users\Yusuf\Desktop\HERE V7 15.10.2025.13.02\HERE V7\HERE V6\data\timeseries.parquet
+2025-10-21 15:23:46 | DEBUG    |    Wrote C:\Users\Yusuf\Desktop\HERE V7 15.10.2025.13.02\HERE V7\HERE V6\data\edges_static.geojson (4667 edges)
+2025-10-21 15:23:46 | INFO     | ✅ 05_build_timeseries.py başarılı (exit code: 0)
+2025-10-21 15:23:46 | INFO     | ======================================================================
+2025-10-21 15:23:46 | INFO     | ADIM 3.5: Topoloji Kontrolü (CONNECTS_TO)
+2025-10-21 15:23:46 | INFO     | ======================================================================
+2025-10-21 15:23:46 | INFO     | ▶️  Çalıştırılıyor: C:\Users\Yusuf\AppData\Local\Programs\Python\Python313\python.exe C:\Users\Yusuf\Desktop\HERE V7 15.10.2025.13.02\HERE V7\HERE V6\src\gnn\ensure_topology.py
+2025-10-21 15:23:47 | DEBUG    |    [TOPO] Checking topology...
+2025-10-21 15:23:47 | DEBUG    |    [OK] Topology exists, skipping.
+2025-10-21 15:23:47 | INFO     | ✅ ensure_topology.py başarılı (exit code: 0)
+2025-10-21 15:23:47 | INFO     | ======================================================================
+2025-10-21 15:23:47 | INFO     | ADIM 4: Neo4j'ye veri yükleme
+2025-10-21 15:23:47 | INFO     | ======================================================================
+2025-10-21 15:23:47 | INFO     | ▶️  Çalıştırılıyor: C:\Users\Yusuf\AppData\Local\Programs\Python\Python313\python.exe C:\Users\Yusuf\Desktop\HERE V7 15.10.2025.13.02\HERE V7\HERE V6\src\neo4j\07_silent_load_to_neo4j.py
+2025-10-21 15:23:50 | DEBUG    |    [INFO] Otomatik Neo4j yükleme başlıyor...
+2025-10-21 15:23:50 | DEBUG    |    [OK] Neo4j bağlantısı başarılı
+2025-10-21 15:23:50 | DEBUG    |    
+2025-10-21 15:23:50 | DEBUG    |    [INFO] Schema oluşturuluyor...
+2025-10-21 15:23:50 | DEBUG    |    [OK] Constraints & indexes ensured.
+2025-10-21 15:23:50 | DEBUG    |    
+2025-10-21 15:23:50 | DEBUG    |    [INFO] Statik segmentler yükleniyor...
+2025-10-21 15:23:50 | DEBUG    |    [OK] Segments upserted: 4667
+2025-10-21 15:23:50 | DEBUG    |    
+2025-10-21 15:23:50 | DEBUG    |    [INFO] Komşuluklar oluşturuluyor...
+2025-10-21 15:23:50 | DEBUG    |    [OK] NEXT_TO created: 19833 (threshold 3.0 m)
+2025-10-21 15:23:50 | DEBUG    |    
+2025-10-21 15:23:50 | DEBUG    |    [INFO] Timeseries yükleniyor (batch=10000)...
+2025-10-21 15:23:50 | DEBUG    |    [OK] Ingested parquet: C:\Users\Yusuf\Desktop\HERE V7 15.10.2025.13.02\HERE V7\HERE V6\data\timeseries.parquet rows=7058, uploaded=7058
+2025-10-21 15:23:50 | DEBUG    |    
+2025-10-21 15:23:50 | DEBUG    |    ======================================================================
+2025-10-21 15:23:50 | DEBUG    |    [SUCCESS] TÜM VERİLER BAŞARIYLA NEO4J'YE YÜKLENDİ!
+2025-10-21 15:23:50 | DEBUG    |    ======================================================================
+2025-10-21 15:23:50 | INFO     | ✅ 07_silent_load_to_neo4j.py başarılı (exit code: 0)
+2025-10-21 15:23:50 | INFO     | ======================================================================
+2025-10-21 15:23:50 | INFO     | 📊 PIPELINE SONUÇLARI
+2025-10-21 15:23:50 | INFO     | ======================================================================
+2025-10-21 15:23:50 | INFO     | ⏱️  Toplam süre: 6.4 saniye
+2025-10-21 15:23:50 | INFO     | 
+2025-10-21 15:23:50 | INFO     | Adım sonuçları:
+2025-10-21 15:23:50 | INFO     |   fetch        → ✅ BAŞARILI
+2025-10-21 15:23:50 | INFO     |   render       → ✅ BAŞARILI
+2025-10-21 15:23:50 | INFO     |   timeseries   → ✅ BAŞARILI
+2025-10-21 15:23:50 | INFO     |   topology     → ✅ BAŞARILI
+2025-10-21 15:23:50 | INFO     |   neo4j        → ✅ BAŞARILI
+2025-10-21 15:23:50 | INFO     | ======================================================================
+2025-10-21 15:23:50 | INFO     | 🎉 TÜM ADIMLAR BAŞARIYLA TAMAMLANDI!
+2025-10-21 15:23:50 | INFO     | ======================================================================
+2025-10-21 15:23:50 | INFO     | 
+⏸️  1 dakika bekleniyor...
+2025-10-21 15:23:50 | INFO     |    Sonraki çalışma: 15:23:50 + 1 dk
+
+2025-10-21 15:24:14 | INFO     | 
+
+🛑 Pipeline kullanıcı tarafından durduruldu (Ctrl+C)
+2025-10-21 15:24:14 | INFO     | 📊 Toplam 2 iterasyon tamamlandı
