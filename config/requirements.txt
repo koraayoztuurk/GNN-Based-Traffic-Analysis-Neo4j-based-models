@@ -10,3 +10,9 @@ numpy>=1.24
 python-arango>=7.1
 psutil>=5.9  # Benchmark için
 pyTigerGraph>=1.0  # TigerGraph benchmark için
+
+# Web Visualization & Authentication
+flask>=3.0
+google-auth>=2.0
+google-auth-oauthlib>=1.0
+pyjwt>=2.0
