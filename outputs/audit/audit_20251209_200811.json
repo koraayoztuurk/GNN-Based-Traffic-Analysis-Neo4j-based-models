@@ -1,0 +1,60 @@
+{
+  "metadata": {
+    "timestamp": "2025-12-09T20:08:11.157876",
+    "source_file": "standalone_audit",
+    "database": "Neo4j"
+  },
+  "counts": {
+    "segmentCount": 1463,
+    "measureCount": 110445,
+    "connectsToCount": 3962,
+    "atTimeCount": 110445,
+    "isolatedSegmentCount": 145
+  },
+  "details": {
+    "isolated_segments": {
+      "count": 145,
+      "sample": [
+        "edge:e5bca8dcf3b6f310",
+        "edge:7251998ae8b97876",
+        "edge:4c3947b0beeef0cb",
+        "edge:21582df156233754",
+        "edge:6f201c56f3ae9931",
+        "edge:497b7e1df48dcc8b",
+        "edge:a2e6bdd4eaadcd26",
+        "edge:9bb3973affea4491",
+        "edge:0cfef77b96cdb703",
+        "edge:8c88c7b59b98d40a",
+        "edge:91c1f835415d47f6",
+        "edge:418d79fd6e8c5cb5",
+        "edge:2cdd8bd633a18dd8",
+        "edge:a937e1aa211fa1ca",
+        "edge:6388965b594ad055",
+        "edge:704dc8225bd8dcba",
+        "edge:b81c7bac0a205c58",
+        "edge:c29d9760d9fdd8ac",
+        "edge:5e01b80145d050a1",
+        "edge:0a51c2197dba0d21"
+      ],
+      "note": "İzole segment'ler: Hiçbir CONNECTS_TO ilişkisi olmayan segment'ler"
+    },
+    "topology": {
+      "avgDegree": 5.42,
+      "density": 0.001852,
+      "maxPossibleEdges": 2138906,
+      "utilizationPercent": 0.1852
+    },
+    "measures": {
+      "avgPerSegment": 0,
+      "minPerSegment": 0,
+      "maxPerSegment": 0
+    }
+  },
+  "warnings": [
+    {
+      "code": "ISOLATED_SEGMENTS",
+      "message": "145 adet izole segment tespit edildi",
+      "severity": "ERROR"
+    }
+  ]
+}
