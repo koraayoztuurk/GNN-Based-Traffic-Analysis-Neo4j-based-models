@@ -67,6 +67,7 @@ from pathlib import Path
 import threading
 import queue
 import random
+from dataclasses import dataclass, asdict
 
 # Third-party imports
 import psutil
@@ -256,6 +257,54 @@ class Statistics:
         return [i for i, v in enumerate(values) if v < lower or v > upper]
 
 # ============================================================================
+# BENCHMARK RECORD - DR-28 & DR-29 COMPLIANCE
+# ============================================================================
+
+@dataclass
+class BenchmarkRecord:
+    """
+    Benchmark kaydı - DR-28 ve DR-29 gereksinimlerini karşılar.
+    
+    DR-28: Benchmark kayıtları en az dbType, operationType ve durationMs alanlarını içermelidir.
+    DR-29: Mümkünse hafıza kullanımı veya veri büyüklüğü (satır sayısı, düğüm/ilişki sayısı) saklanmalıdır.
+    
+    Attributes:
+        dbType (str): Veritabanı tipi (neo4j, arangodb, tigergraph)
+        operationType (str): İşlem tipi (read, write, traversal, aggregation, etc.)
+        durationMs (float): İşlem süresi (milisaniye)
+        timestamp (float): Unix timestamp
+        unit (str): Ölçüm birimi (default: 'ms')
+        memoryUsageMb (Optional[float]): Hafıza kullanımı (MB)
+        rowCount (Optional[int]): Dönen satır sayısı
+        nodeCount (Optional[int]): İşlenen düğüm sayısı
+        relationshipCount (Optional[int]): İşlenen ilişki sayısı
+        dataSize (Optional[int]): Veri büyüklüğü (bytes)
+        cpuPercent (Optional[float]): CPU kullanım yüzdesi
+    """
+    # DR-28 Zorunlu Alanlar
+    dbType: str
+    operationType: str
+    durationMs: float
+    
+    # Metadata
+    timestamp: float
+    unit: str = "ms"
+    
+    # DR-29 Opsiyonel Alanlar - Veri Büyüklüğü & Hafıza
+    memoryUsageMb: Optional[float] = None
+    rowCount: Optional[int] = None
+    nodeCount: Optional[int] = None
+    relationshipCount: Optional[int] = None
+    dataSize: Optional[int] = None
+    cpuPercent: Optional[float] = None
+    
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert to dictionary, excluding None values for compact storage."""
+        result = asdict(self)
+        # Remove None values for cleaner output
+        return {k: v for k, v in result.items() if v is not None}
+
+# ============================================================================
 # RESOURCE MONITORING
 # ============================================================================
 
@@ -350,18 +399,95 @@ class ComprehensiveResults:
             'python_implementation': platform.python_implementation()
         }
     
-    def add_result(self, db: str, test: str, metric: str, value: float, unit: str = ""):
-        """Tek bir test sonucu ekle."""
-        self.results[db][test][metric].append({
-            'value': value,
-            'unit': unit,
-            'timestamp': time.time()
-        })
+    def add_result(
+        self, 
+        db: str, 
+        test: str, 
+        metric: str, 
+        value: float, 
+        unit: str = "ms",
+        memory_usage_mb: Optional[float] = None,
+        row_count: Optional[int] = None,
+        node_count: Optional[int] = None,
+        relationship_count: Optional[int] = None,
+        data_size: Optional[int] = None,
+        cpu_percent: Optional[float] = None
+    ):
+        """
+        Tek bir test sonucu ekle - DR-28 ve DR-29 uyumlu.
+        
+        Args:
+            db: Veritabanı tipi (neo4j, arangodb, tigergraph) - DR-28
+            test: Test adı (operationType) - DR-28
+            metric: Metrik adı
+            value: Süre değeri (durationMs) - DR-28
+            unit: Ölçüm birimi (default: 'ms')
+            memory_usage_mb: Hafıza kullanımı (MB) - DR-29
+            row_count: Dönen satır sayısı - DR-29
+            node_count: İşlenen düğüm sayısı - DR-29
+            relationship_count: İşlenen ilişki sayısı - DR-29
+            data_size: Veri büyüklüğü (bytes) - DR-29
+            cpu_percent: CPU kullanım yüzdesi - DR-29
+        """
+        # BenchmarkRecord oluştur - DR-28 & DR-29 compliant
+        record = BenchmarkRecord(
+            dbType=db,
+            operationType=f"{test}:{metric}",
+            durationMs=value,
+            timestamp=time.time(),
+            unit=unit,
+            memoryUsageMb=memory_usage_mb,
+            rowCount=row_count,
+            nodeCount=node_count,
+            relationshipCount=relationship_count,
+            dataSize=data_size,
+            cpuPercent=cpu_percent
+        )
+        
+        # Eski format uyumluluğu için value alanını da sakla
+        record_dict = record.to_dict()
+        record_dict['value'] = value  # İstatistik hesaplamaları için
+        
+        self.results[db][test][metric].append(record_dict)
     
-    def add_batch_results(self, db: str, test: str, metric: str, values: List[float], unit: str = ""):
-        """Birden fazla test sonucu ekle (iterasyonlar için)."""
+    def add_batch_results(
+        self, 
+        db: str, 
+        test: str, 
+        metric: str, 
+        values: List[float], 
+        unit: str = "ms",
+        memory_usage_mb: Optional[float] = None,
+        row_count: Optional[int] = None,
+        node_count: Optional[int] = None,
+        relationship_count: Optional[int] = None
+    ):
+        """
+        Birden fazla test sonucu ekle (iterasyonlar için) - DR-28 ve DR-29 uyumlu.
+        
+        Args:
+            db: Veritabanı tipi - DR-28
+            test: Test adı - DR-28
+            metric: Metrik adı
+            values: Süre değerleri listesi - DR-28
+            unit: Ölçüm birimi
+            memory_usage_mb: Ortalama hafıza kullanımı - DR-29
+            row_count: Ortalama satır sayısı - DR-29
+            node_count: İşlenen düğüm sayısı - DR-29
+            relationship_count: İşlenen ilişki sayısı - DR-29
+        """
         for value in values:
-            self.add_result(db, test, metric, value, unit)
+            self.add_result(
+                db=db, 
+                test=test, 
+                metric=metric, 
+                value=value, 
+                unit=unit,
+                memory_usage_mb=memory_usage_mb,
+                row_count=row_count,
+                node_count=node_count,
+                relationship_count=relationship_count
+            )
     
     def get_statistics(self, db: str, test: str, metric: str) -> Dict[str, float]:
         """Bir metrik için istatistikleri hesapla."""
@@ -494,38 +620,109 @@ class ComprehensiveResults:
             print()
     
     def save_to_json(self, filename: str = "comprehensive_benchmark_results.json"):
-        """Save results to JSON file with full statistical analysis."""
+        """
+        Save results to JSON file with full statistical analysis.
+        DR-28 & DR-29 compliant: Includes dbType, operationType, durationMs, 
+        memory usage, and data size information.
+        """
         # Full path - outputs/benchmarks/ directory
         output_path = Path(ROOT_DIR) / "outputs" / "benchmarks" / filename
         output_path.parent.mkdir(parents=True, exist_ok=True)
         
-        # Raw results
+        # Raw results with full BenchmarkRecord data
         raw_results = {}
+        
+        # DR-28 & DR-29: Flatten all records for easy querying
+        all_benchmark_records = []
+        
         for db in self.results:
             raw_results[db] = {}
             for test in self.results[db]:
                 raw_results[db][test] = {}
                 for metric in self.results[db][test]:
-                    values = [r['value'] for r in self.results[db][test][metric]]
-                    unit = self.results[db][test][metric][0]['unit']
+                    records = self.results[db][test][metric]
+                    values = [r['value'] for r in records]
+                    unit = records[0].get('unit', 'ms') if records else 'ms'
                     stats = self.get_statistics(db, test, metric)
                     
+                    # Extract DR-29 aggregate info (memory, node counts, etc.)
+                    memory_values = [r.get('memoryUsageMb') for r in records if r.get('memoryUsageMb') is not None]
+                    row_counts = [r.get('rowCount') for r in records if r.get('rowCount') is not None]
+                    node_counts = [r.get('nodeCount') for r in records if r.get('nodeCount') is not None]
+                    relationship_counts = [r.get('relationshipCount') for r in records if r.get('relationshipCount') is not None]
+                    
                     raw_results[db][test][metric] = {
-                        'raw_values': values,
+                        # DR-28 Zorunlu Alanlar
+                        'dbType': db,
+                        'operationType': f"{test}:{metric}",
+                        'durationMs': {
+                            'raw_values': values,
+                            'statistics': stats
+                        },
                         'unit': unit,
-                        'statistics': stats,
-                        'winner': self.get_winner(test, metric)
+                        'winner': self.get_winner(test, metric),
+                        
+                        # DR-29 Opsiyonel Alanlar - Veri Büyüklüğü & Hafıza
+                        'memoryUsageMb': {
+                            'values': memory_values,
+                            'mean': statistics.mean(memory_values) if memory_values else None,
+                            'max': max(memory_values) if memory_values else None
+                        } if memory_values else None,
+                        'rowCount': {
+                            'values': row_counts,
+                            'total': sum(row_counts) if row_counts else None,
+                            'mean': statistics.mean(row_counts) if row_counts else None
+                        } if row_counts else None,
+                        'nodeCount': {
+                            'values': node_counts,
+                            'total': sum(node_counts) if node_counts else None,
+                            'mean': statistics.mean(node_counts) if node_counts else None
+                        } if node_counts else None,
+                        'relationshipCount': {
+                            'values': relationship_counts,
+                            'total': sum(relationship_counts) if relationship_counts else None,
+                            'mean': statistics.mean(relationship_counts) if relationship_counts else None
+                        } if relationship_counts else None,
+                        
+                        # Full records for detailed analysis
+                        'records': records
                     }
+                    
+                    # Add to flat list for easy DR-28/DR-29 compliance verification
+                    for record in records:
+                        all_benchmark_records.append({
+                            'dbType': record.get('dbType', db),
+                            'operationType': record.get('operationType', f"{test}:{metric}"),
+                            'durationMs': record.get('durationMs', record.get('value')),
+                            'timestamp': record.get('timestamp'),
+                            'unit': record.get('unit', unit),
+                            'memoryUsageMb': record.get('memoryUsageMb'),
+                            'rowCount': record.get('rowCount'),
+                            'nodeCount': record.get('nodeCount'),
+                            'relationshipCount': record.get('relationshipCount'),
+                            'dataSize': record.get('dataSize'),
+                            'cpuPercent': record.get('cpuPercent')
+                        })
         
         output = {
             'metadata': self.metadata,
-            'results': raw_results
+            'dr28_dr29_compliance': {
+                'dr28_fields': ['dbType', 'operationType', 'durationMs'],
+                'dr29_fields': ['memoryUsageMb', 'rowCount', 'nodeCount', 'relationshipCount', 'dataSize', 'cpuPercent'],
+                'total_records': len(all_benchmark_records),
+                'records_with_memory_info': sum(1 for r in all_benchmark_records if r.get('memoryUsageMb') is not None),
+                'records_with_size_info': sum(1 for r in all_benchmark_records if r.get('rowCount') is not None or r.get('nodeCount') is not None)
+            },
+            'results': raw_results,
+            'benchmark_records': all_benchmark_records  # Flat list for easy querying
         }
         
         with open(output_path, 'w', encoding='utf-8') as f:
             json.dump(output, f, indent=2, ensure_ascii=False)
         
         print(f"\nResults saved: {filename}")
+        print(f"  DR-28 Compliance: ✓ (dbType, operationType, durationMs fields included)")
+        print(f"  DR-29 Compliance: ✓ (memoryUsageMb, rowCount, nodeCount, relationshipCount fields available)")
     
     def export_academic_tables(self):
         """Export results in academic paper-ready formats (LaTeX, Markdown, CSV)."""
