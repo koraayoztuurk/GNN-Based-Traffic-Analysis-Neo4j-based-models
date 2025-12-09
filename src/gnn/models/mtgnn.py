@@ -131,7 +131,14 @@ class DilatedInception(nn.Module):
         x_list = []
         for i in range(len(self.kernel_set)):
             # Causal padding: Gelecekten bilgi sızmaması için
-            x = self.tconv[i](input)
+            # Dilation ve kernel'a göre padding hesapla
+            kernel_size = self.kernel_set[i]
+            dilation = self.tconv[i].dilation[1]
+            padding = (kernel_size - 1) * dilation
+            
+            # Sol tarafa padding ekle (causal)
+            x_padded = F.pad(input, (padding, 0, 0, 0))
+            x = self.tconv[i](x_padded)
             x_list.append(x)
             
         # Farklı filtre çıktılarını birleştir
@@ -140,17 +147,20 @@ class DilatedInception(nn.Module):
 
 
 class LayerNorm(nn.Module):
+    """BatchNorm2d wrapper - dinamik boyutlarla daha iyi çalışır"""
     def __init__(self, normalized_shape, eps=1e-5):
         super(LayerNorm, self).__init__()
-        self.weight = nn.Parameter(torch.ones(normalized_shape))
-        self.bias = nn.Parameter(torch.zeros(normalized_shape))
-        self.eps = eps
+        # normalized_shape tuple ise (C, N, T) formatında
+        # Sadece channel boyutunu kullan
+        if isinstance(normalized_shape, tuple):
+            num_channels = normalized_shape[0]
+        else:
+            num_channels = normalized_shape
+        self.bn = nn.BatchNorm2d(num_channels, eps=eps)
 
     def forward(self, x):
         # x: (B, C, N, T)
-        mean = x.mean(1, keepdim=True)
-        std = x.std(1, keepdim=True)
-        return self.weight * (x - mean) / (std + self.eps) + self.bias
+        return self.bn(x)
 
 
 class MTGNN(nn.Module):
@@ -234,7 +244,8 @@ class MTGNN(nn.Module):
             self.filter_convs.append(DilatedInception(residual_channels, conv_channels, dilation_factor=new_dilation))
             self.gate_convs.append(DilatedInception(residual_channels, conv_channels, dilation_factor=new_dilation))
             self.residual_convs.append(nn.Conv2d(in_channels=conv_channels, out_channels=residual_channels, kernel_size=(1, 1)))
-            self.skip_convs.append(nn.Conv2d(in_channels=conv_channels, out_channels=skip_channels, kernel_size=(1, self.seq_length - rf_size_i + 1)))
+            # Skip conv'u 1x1 yap, global pooling ile skip connection yapacağız
+            self.skip_convs.append(nn.Conv2d(in_channels=conv_channels, out_channels=skip_channels, kernel_size=(1, 1)))
 
             if self.gcn_true:
                 self.gconv1.append(MixHopLayer(conv_channels, residual_channels, gcn_depth, dropout, propalpha))
@@ -314,6 +325,12 @@ class MTGNN(nn.Module):
             x = self.norm[i](x)
 
         # Output Module
+        # Skip: (B, skip_channels, N, T) - T değişken olabilir
+        # Causal CNN standardı: Sadece en son (en bilgili) zaman adımını al
+        # NOT: adaptive_avg_pool2d tüm adımların ortalamasını alır ve sinyali kirletir
+        # Son adım, tüm receptive field'ı görür ve en zengin bilgiye sahiptir
+        skip = skip[:, :, :, -1:]  # (B, skip_channels, N, 1)
+        
         x = F.relu(skip)
         x = F.relu(self.end_conv_1(x))
         x = self.end_conv_2(x)  # (B, Out_dim, N, 1)
