@@ -28,7 +28,7 @@ def main():
     servers = [
         {
             "name": "Neo4j",
-            "script": script_dir / "12_simple_web_server.py",
+            "script": script_dir / "neo4j_viewer.py",
             "port": 5000,
             "color": "🔵"
         },
@@ -90,7 +90,7 @@ def main():
             time.sleep(1)
             for p in processes:
                 if p['process'].poll() is not None:
-                    print(f"\n⚠️ {p['name']} server stopped unexpectedly!")
+                    print(f"\n⚠ {p['name']} server stopped unexpectedly!")
                     # Try to get error output
                     stderr = p['process'].stderr.read()
                     if stderr:
@@ -109,10 +109,10 @@ def main():
                 p['process'].terminate()
                 p['process'].wait(timeout=5)
             except subprocess.TimeoutExpired:
-                print(f"  ⚠️ Force killing {p['name']}...")
+                print(f"  ⚠ Force killing {p['name']}...")
                 p['process'].kill()
             except Exception as e:
-                print(f"  ⚠️ Error stopping {p['name']}: {e}")
+                print(f"  ⚠ Error stopping {p['name']}: {e}")
         
         print()
         print("All servers stopped.")

@@ -33,6 +33,11 @@ def get_db():
 def index():
     return send_from_directory('.', 'arangodb_traffic_map.html')
 
+@app.route('/api/status')
+def get_status():
+    """Basit status kontrolü - database_selector_web için"""
+    return jsonify({"status": "running", "database": "arangodb", "port": 5001})
+
 @app.route('/api/timestamps')
 def get_timestamps():
     """Tüm mevcut timestamp'leri döndür"""

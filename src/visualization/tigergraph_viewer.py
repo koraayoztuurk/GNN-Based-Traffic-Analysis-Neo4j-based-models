@@ -39,6 +39,11 @@ def get_connection():
 def index():
     return send_from_directory('.', 'tigergraph_traffic_map.html')
 
+@app.route('/api/status')
+def get_status():
+    """Basit status kontrolü - database_selector_web için"""
+    return jsonify({"status": "running", "database": "tigergraph", "port": 5002})
+
 @app.route('/api/timestamps')
 def get_timestamps():
     """Tüm mevcut timestamp'leri döndür"""

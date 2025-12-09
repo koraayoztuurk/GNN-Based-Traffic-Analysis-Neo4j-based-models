@@ -31,6 +31,11 @@ def get_driver():
 def index():
     return send_from_directory('.', 'neo4j_traffic_map.html')
 
+@app.route('/api/status')
+def get_status():
+    """Basit status kontrolü - database_selector_web için"""
+    return jsonify({"status": "running", "database": "neo4j", "port": 5000})
+
 @app.route('/api/timestamps')
 def get_timestamps():
     """Tüm mevcut timestamp'leri döndür"""
